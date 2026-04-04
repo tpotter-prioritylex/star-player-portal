@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Creation Flow Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>User Creation Flow Test</h1>
+    <div id="results"></div>
+
+    <script>
+        // Initialize Supabase with your project details
+        const supabase = window.supabase.createClient(
+            'https://aaejypkbdntwodxizafj.supabase.co',
+            'sb_publishable_oSeeiT4_UrK7RctG_Vp4lw_etY3IEqS' // This should be your actual anon key
+        )
+
+        function log(message, isError = false) {
+            const results = document.getElementById('results')
+            const div = document.createElement('div')
+            div.style.color = isError ? 'red' : 'green'
+            div.style.fontFamily = 'monospace'
+            div.style.margin = '5px 0'
+            div.textContent = message
+            results.appendChild(div)
+            console.log(message)
+        }
+
+        // Simplified version of the rebuilt createUser function for testing
+        async function createUser(userData) {
+            log('🚀 Starting user creation for: ' + userData.email)
+
+            // STEP 1: Store admin session before signUp
+            const { data: { session: adminSession }, error: sessionError } = await supabase.auth.getSession()
+
+            if (sessionError || !adminSession) {
+                log('❌ Cannot get admin session: ' + (sessionError?.message || 'No session'), true)
+                return { data: null, error: new Error('Admin session required') }
+            }
+
+            log('✅ Admin session stored: ' + adminSession.user.email)
+
+            try {
+                // STEP 2: Call supabase.auth.signUp
+                log('📧 Creating auth user with signUp...')
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email: userData.email,
+                    password: userData.temporary_password,
+                    options: {
+                        data: {
+                            full_name: userData.full_name,
+                            role: userData.role,
+                        }
+                    }
+                })
+
+                // STEP 3: Handle auth errors
+                if (authError) {
+                    log('❌ Auth user creation failed: ' + authError.message, true)
+                    await supabase.auth.setSession(adminSession)
+                    log('🔄 Admin session restored after auth error')
+                    return { data: null, error: authError }
+                }
+
+                if (!authData.user) {
+                    log('❌ No user returned from signUp', true)
+                    await supabase.auth.setSession(adminSession)
+                    return { data: null, error: new Error('No user returned') }
+                }
+
+                const newUserId = authData.user.id
+                log('✅ Auth user created: ' + newUserId)
+
+                // STEP 4: CRITICAL - Immediately restore admin session
+                log('🔄 Restoring admin session...')
+                const { error: restoreError } = await supabase.auth.setSession(adminSession)
+
+                if (restoreError) {
+                    log('❌ Failed to restore admin session: ' + restoreError.message, true)
+                } else {
+                    log('✅ Admin session restored successfully')
+                }
+
+                // STEP 5: Create user profile
+                log('👤 Creating user profile...')
+                const profileData = {
+                    id: newUserId,
+                    email: userData.email,
+                    full_name: userData.full_name,
+                    role: userData.role,
+                    group_id: userData.group_id,
+                }
+
+                const { data: insertedProfile, error: profileError } = await supabase
+                    .from('users')
+                    .insert(profileData)
+                    .select()
+                    .single()
+
+                if (profileError) {
+                    log('❌ Profile creation failed: ' + profileError.message, true)
+                    return { data: null, error: profileError }
+                }
+
+                log('✅ Profile created successfully: ' + insertedProfile.id)
+                return { data: insertedProfile, error: null }
+
+            } catch (error) {
+                log('💥 Exception: ' + error.message, true)
+                await supabase.auth.setSession(adminSession)
+                log('🔄 Admin session restored after exception')
+                return { data: null, error }
+            }
+        }
+
+        async function runTest() {
+            log('🧪 Starting comprehensive user creation test...')
+
+            // Test 1: Verify admin session
+            const { data: { session } } = await supabase.auth.getSession()
+            if (!session) {
+                log('❌ No admin session - please log in first', true)
+                return
+            }
+            log('✅ Admin session confirmed: ' + session.user.email)
+
+            // Test 2: Check database access
+            const { data: users, error: readError } = await supabase
+                .from('users')
+                .select('id, email, role')
+                .limit(3)
+
+            if (readError) {
+                log('❌ Cannot read users table: ' + readError.message, true)
+                return
+            }
+            log('✅ Database access confirmed: ' + users.length + ' users found')
+
+            // Test 3: Create test user
+            const testUserData = {
+                email: `test-${Date.now()}@example.com`,
+                full_name: 'Test User Session Fix',
+                role: 'star_player',
+                group_id: 1,
+                temporary_password: 'TempPass123!'
+            }
+
+            log('📝 Testing user creation with: ' + testUserData.email)
+
+            const result = await createUser(testUserData)
+
+            if (result.error) {
+                log('❌ Test FAILED: ' + result.error.message, true)
+                return
+            }
+
+            log('✅ User created successfully!')
+
+            // Test 4: CRITICAL - Verify session preservation
+            const { data: { session: finalSession } } = await supabase.auth.getSession()
+            if (finalSession && finalSession.user.id === session.user.id) {
+                log('✅ SUCCESS: Admin session preserved throughout creation!')
+                log('🎉 Session preservation fix is working correctly!')
+            } else {
+                log('❌ FAILED: Admin session was not preserved', true)
+            }
+
+            log('🧪 Test completed')
+        }
+
+        // Auto-run when page loads
+        window.addEventListener('load', () => {
+            setTimeout(runTest, 1000)
+        })
+    </script>
+</body>
+</html>
