@@ -108,8 +108,18 @@ export function useAuthState() {
   }
 
   useEffect(() => {
-    // Get initial session once on mount - no realtime subscriptions
+    // Get initial session once on mount
     refreshUser(true)
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+        refreshUser(true)
+      }
+    })
+
+    // Cleanup subscription
+    return () => subscription.unsubscribe()
   }, [])
 
   return { user, loading, signOut, refreshUser }
