@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { X } from 'lucide-react'
+import { X, CheckCircle } from 'lucide-react'
 import { createUser, generateTemporaryPassword } from '../../lib/users'
 import { getAllGroups } from '../../lib/groups'
+import { WelcomeEmailCopy } from './WelcomeEmailCopy'
 import type { UserRole, Group } from '../../types'
 
 interface CreateUserModalProps {
@@ -20,6 +21,11 @@ export function CreateUserModal({ onClose, onUserCreated }: CreateUserModalProps
   const [groups, setGroups] = useState<Group[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [createdUser, setCreatedUser] = useState<{
+    email: string
+    full_name: string
+    password: string
+  } | null>(null)
 
   useEffect(() => {
     // Load groups for selection
@@ -77,25 +83,19 @@ export function CreateUserModal({ onClose, onUserCreated }: CreateUserModalProps
         return
       }
 
-      // STEP 6: If both succeed, close modal, refresh list, show success
+      // STEP 6: If both succeed, show success view with welcome email copy
       if (data) {
         console.log('✅ User creation successful:', data.id)
 
-        // Show success message with all details
-        alert(`✅ User created successfully!
+        // Set created user to show success view
+        setCreatedUser({
+          email: data.email,
+          full_name: data.full_name,
+          password: formData.temporary_password
+        })
 
-📧 Email: ${data.email}
-👤 Name: ${data.full_name}
-🏷️ Role: ${data.role}
-👥 Group: ${data.group_id ? `Group ${data.group_id}` : 'Unassigned'}
-
-🔑 Temporary Password: ${formData.temporary_password}
-
-Please share this password with the user securely. They should change it on first login.`)
-
-        // Close modal and refresh user list
+        // Refresh user list in background
         onUserCreated()
-        onClose()
       } else {
         setError('User creation completed but no user data returned')
       }
@@ -121,6 +121,62 @@ Please share this password with the user securely. They should change it on firs
       ...prev,
       temporary_password: generateTemporaryPassword()
     }))
+  }
+
+  // Show success view if user was created
+  if (createdUser) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-lg shadow-lg max-w-md w-full">
+          {/* Header */}
+          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <h2 className="text-lg font-serif font-semibold text-navy">User Created Successfully</h2>
+            <button
+              onClick={onClose}
+              className="text-muted hover:text-dark transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Success Content */}
+          <div className="p-6 space-y-4">
+            <div className="flex items-center justify-center mb-4">
+              <CheckCircle className="h-12 w-12 text-green-600" />
+            </div>
+
+            <div className="text-center">
+              <h3 className="text-lg font-medium text-dark mb-2">{createdUser.full_name}</h3>
+              <p className="text-muted mb-4">{createdUser.email}</p>
+
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
+                <p className="text-sm text-gray-700 mb-2">
+                  <strong>Temporary Password:</strong>
+                </p>
+                <p className="font-mono text-sm bg-white border border-gray-300 rounded px-3 py-2">
+                  {createdUser.password}
+                </p>
+              </div>
+
+              <WelcomeEmailCopy user={createdUser} className="w-full justify-center mb-4" />
+
+              <p className="text-xs text-muted">
+                The user must change their password on first login
+              </p>
+            </div>
+
+            <div className="flex justify-end pt-4 border-t border-gray-200">
+              <button
+                onClick={onClose}
+                className="px-4 py-2 text-sm bg-navy text-white rounded-md hover:bg-navy/90 transition-colors"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

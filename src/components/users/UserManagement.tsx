@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Plus, RefreshCw, Search } from 'lucide-react'
+import { Plus, RefreshCw, Search, Upload } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { canCreateUsers } from '../../lib/permissions'
 import { getAllUsers, deleteUser, changeUserGroup } from '../../lib/users'
 import { getAllGroups } from '../../lib/groups'
 import { CreateUserModal } from './CreateUserModal'
 import { EditUserModal } from './EditUserModal'
+import { BulkImportModal } from './BulkImportModal'
 import { UserTable } from './UserTable'
 import { LoadingSpinner } from '../common/LoadingSpinner'
 import type { User, Group } from '../../types'
@@ -19,6 +20,7 @@ export function UserManagement() {
   const [error, setError] = useState<string | null>(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
+  const [showBulkImportModal, setShowBulkImportModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -97,6 +99,10 @@ export function UserManagement() {
     setShowCreateModal(true)
   }
 
+  const handleBulkImport = () => {
+    setShowBulkImportModal(true)
+  }
+
   const handleEditUser = (user: User) => {
     setSelectedUser(user)
     setShowEditModal(true)
@@ -145,6 +151,7 @@ export function UserManagement() {
   const handleModalClose = () => {
     setShowCreateModal(false)
     setShowEditModal(false)
+    setShowBulkImportModal(false)
     setSelectedUser(null)
   }
 
@@ -156,6 +163,11 @@ export function UserManagement() {
   const handleUserUpdated = () => {
     loadUsers()
     handleModalClose()
+  }
+
+  const handleUsersCreated = () => {
+    loadUsers()
+    // Don't auto-close bulk import modal to allow copying emails
   }
 
   const handleGroupChange = async (user: User, newGroupId: number | null) => {
@@ -229,6 +241,13 @@ export function UserManagement() {
           >
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh
+          </button>
+          <button
+            onClick={handleBulkImport}
+            className="flex items-center px-4 py-2 bg-teal text-white rounded-md hover:bg-teal/80 transition-colors"
+          >
+            <Upload className="h-4 w-4 mr-2" />
+            Bulk Import
           </button>
           <button
             onClick={handleCreateUser}
@@ -343,6 +362,13 @@ export function UserManagement() {
           user={selectedUser}
           onClose={handleModalClose}
           onUserUpdated={handleUserUpdated}
+        />
+      )}
+
+      {showBulkImportModal && (
+        <BulkImportModal
+          onClose={handleModalClose}
+          onUsersCreated={handleUsersCreated}
         />
       )}
     </div>

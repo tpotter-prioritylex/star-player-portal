@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { canCreateUsers } from '../../lib/permissions'
+import { UserProfileDropdown } from './UserProfileDropdown'
 
 interface NavItem {
   to: string
@@ -89,25 +90,9 @@ export function Sidebar() {
         </ul>
       </nav>
 
-      {/* User Info */}
+      {/* User Profile Dropdown */}
       <div className="p-4 border-t border-navy/20">
-        <div className="flex items-center">
-          <div className="flex-shrink-0">
-            <div className="h-8 w-8 bg-teal rounded-full flex items-center justify-center">
-              <span className="text-xs font-medium text-white">
-                {user.full_name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-              </span>
-            </div>
-          </div>
-          <div className="ml-3 flex-1 min-w-0">
-            <p className="text-sm font-medium text-white truncate">
-              {user.full_name}
-            </p>
-            <p className="text-xs text-gray-300 capitalize">
-              {user.role.replace('_', ' ')}
-            </p>
-          </div>
-        </div>
+        <UserProfileDropdown />
       </div>
     </div>
   )
