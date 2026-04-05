@@ -8,11 +8,9 @@ interface ChangePasswordModalProps {
 
 export function ChangePasswordModal({ onClose }: ChangePasswordModalProps) {
   const [formData, setFormData] = useState({
-    currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   })
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -24,11 +22,6 @@ export function ChangePasswordModal({ onClose }: ChangePasswordModalProps) {
     setError(null)
 
     // Validate passwords
-    if (!formData.currentPassword) {
-      setError('Current password is required')
-      return
-    }
-
     if (!formData.newPassword) {
       setError('New password is required')
       return
@@ -44,32 +37,10 @@ export function ChangePasswordModal({ onClose }: ChangePasswordModalProps) {
       return
     }
 
-    if (formData.currentPassword === formData.newPassword) {
-      setError('New password must be different from current password')
-      return
-    }
-
     setLoading(true)
 
     try {
-      // First verify current password by attempting to re-authenticate
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user?.email) {
-        throw new Error('User not found')
-      }
-
-      // Try to sign in with current credentials to verify current password
-      const { error: verifyError } = await supabase.auth.signInWithPassword({
-        email: user.email,
-        password: formData.currentPassword
-      })
-
-      if (verifyError) {
-        setError('Current password is incorrect')
-        return
-      }
-
-      // Update password
+      // Update password directly
       const { error: updateError } = await supabase.auth.updateUser({
         password: formData.newPassword
       })
@@ -127,32 +98,6 @@ export function ChangePasswordModal({ onClose }: ChangePasswordModalProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* Current Password */}
-          <div>
-            <label htmlFor="currentPassword" className="block text-sm font-medium text-dark mb-1">
-              Current Password *
-            </label>
-            <div className="relative">
-              <input
-                id="currentPassword"
-                name="currentPassword"
-                type={showCurrentPassword ? "text" : "password"}
-                value={formData.currentPassword}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-transparent"
-                placeholder="Enter your current password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted hover:text-dark"
-              >
-                {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
-          </div>
-
           {/* New Password */}
           <div>
             <label htmlFor="newPassword" className="block text-sm font-medium text-dark mb-1">
