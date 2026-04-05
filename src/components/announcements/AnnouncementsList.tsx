@@ -117,13 +117,22 @@ export function AnnouncementsList() {
           }).then((emailResult) => {
             if (emailResult.success) {
               console.log('Announcement email sent successfully:', emailResult.message)
-              // Optionally show a success message to the user
+              // Show success message to user
+              setTimeout(() => {
+                alert(`Announcement created and emailed to users successfully!`)
+              }, 500)
             } else {
               console.error('Failed to send announcement email:', emailResult.error)
-              // Optionally show an error message to the user
+              // Show error message to user
+              setTimeout(() => {
+                alert(`Announcement created, but failed to send emails: ${emailResult.error}`)
+              }, 500)
             }
           }).catch((err) => {
             console.error('Unexpected error sending announcement email:', err)
+            setTimeout(() => {
+              alert(`Announcement created, but email sending failed: ${err.message}`)
+            }, 500)
           })
         }
       }
