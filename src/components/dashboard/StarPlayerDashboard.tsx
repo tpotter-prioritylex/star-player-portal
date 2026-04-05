@@ -13,7 +13,7 @@ interface SOPProgress {
 
 interface PipelineCertification {
   id: number
-  name: string
+  certification: string
   status: string
 }
 
@@ -57,7 +57,7 @@ export function StarPlayerDashboard() {
         // Load pipeline certifications for current user
         const { data: pipelineCerts, error: pipelineError } = await supabase
           .from('pipeline_certifications')
-          .select('id, name, status')
+          .select('*')
           .eq('user_id', user.id)
 
         if (pipelineError) throw pipelineError
@@ -275,7 +275,7 @@ export function StarPlayerDashboard() {
             <div className="space-y-3">
               {data.pipelineCertifications.map((cert) => (
                 <div key={cert.id} className="flex items-center justify-between">
-                  <span className="text-sm text-dark">{cert.name}</span>
+                  <span className="text-sm text-dark">{cert.certification}</span>
                   <span className={`px-2 py-1 text-xs rounded-full ${
                     cert.status === 'completed'
                       ? 'bg-green-100 text-green-700'
