@@ -98,55 +98,18 @@ export function useAuthState() {
     setLoading(true)
     try {
       await supabase.auth.signOut()
+      setUser(null)
     } catch (error) {
       console.error('Error signing out:', error)
+      // Still clear user even if signOut fails
+      setUser(null)
     }
-    setUser(null)
     setLoading(false)
   }
 
   useEffect(() => {
-    let mounted = true
-
-    // Get initial session
+    // Get initial session once on mount - no realtime subscriptions
     refreshUser(true)
-
-    // Listen for auth changes with debouncing
-    let refreshTimeout: NodeJS.Timeout
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mounted) return
-
-      console.log('Auth state change:', event, !!session)
-
-      // Clear any pending refresh
-      if (refreshTimeout) {
-        clearTimeout(refreshTimeout)
-      }
-
-      if (event === 'SIGNED_IN') {
-        // Immediate refresh on sign in
-        await refreshUser(true)
-      } else if (event === 'TOKEN_REFRESHED') {
-        // Debounced refresh on token refresh to prevent loops
-        refreshTimeout = setTimeout(() => {
-          if (mounted) {
-            refreshUser(false)
-          }
-        }, 1000)
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null)
-        setLoading(false)
-      }
-    })
-
-    return () => {
-      mounted = false
-      if (refreshTimeout) {
-        clearTimeout(refreshTimeout)
-      }
-      subscription.unsubscribe()
-    }
   }, [])
 
   return { user, loading, signOut, refreshUser }
