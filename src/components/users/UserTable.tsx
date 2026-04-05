@@ -1,4 +1,3 @@
-import React from 'react'
 import { Edit, Trash2, RefreshCw, Users } from 'lucide-react'
 import { getRoleDisplayName, getRoleColor } from '../../lib/permissions'
 import type { User, Group } from '../../types'

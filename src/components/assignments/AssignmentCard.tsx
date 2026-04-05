@@ -1,5 +1,4 @@
-import React from 'react'
-import { Upload, CheckCircle, AlertCircle, Clock, Plus } from 'lucide-react'
+import { CheckCircle, AlertCircle, Clock, Plus } from 'lucide-react'
 import { getAssignmentStatusColor, getAssignmentStatusLabel } from '../../lib/assignments'
 import type { TrainingDay, StudentUpload } from '../../types'
 
@@ -10,7 +9,7 @@ interface AssignmentCardProps {
   onUpdate: () => void
 }
 
-export function AssignmentCard({ trainingDay, assignment, onUpload, onUpdate }: AssignmentCardProps) {
+export function AssignmentCard({ trainingDay, assignment, onUpload, onUpdate: _onUpdate }: AssignmentCardProps) {
   const getStatusIcon = () => {
     if (!assignment) {
       return <Plus className="h-5 w-5 text-muted" />

@@ -65,12 +65,11 @@ export async function uploadAssignment(assignmentData: UploadAssignmentData): Pr
     }
 
     // Generate file path
-    const fileExt = assignmentData.file.name.split('.').pop()
     const fileName = `${Date.now()}-${assignmentData.file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
     const filePath = `group-${userData.group_id}/day-${assignmentData.day_id}/${user.id}/${fileName}`
 
     // Upload file to storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { data: _uploadData, error: uploadError } = await supabase.storage
       .from(STORAGE_BUCKETS.STUDENT_UPLOADS)
       .upload(filePath, assignmentData.file)
 

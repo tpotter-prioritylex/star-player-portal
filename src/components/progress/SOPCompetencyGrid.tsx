@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Check, Clock, Star, Target, MessageSquare } from 'lucide-react'
+import { useState } from 'react'
+import { Check, Clock, Star, MessageSquare } from 'lucide-react'
 import { updateSOPCompetency, groupSOPsBySeries, getSOPStatusColor, getSOPStatusLabel } from '../../lib/progress'
 import { SOP_SERIES } from '../../types'
 import type { SOPCompetency } from '../../types'

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { Plus, Edit, Trash2, RefreshCw, Search } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Plus, RefreshCw, Search } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { canCreateUsers } from '../../lib/permissions'
 import { getAllUsers, deleteUser, changeUserGroup } from '../../lib/users'

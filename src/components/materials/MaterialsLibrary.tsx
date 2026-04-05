@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { Plus, Search, Filter, Upload, Download } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Search, Upload } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { canUploadCurriculum } from '../../lib/permissions'
 import { getTrainingDays, getCurriculumMaterials } from '../../lib/materials'

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { User, TrendingUp, Award, Target } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { canUpdateCompetencies } from '../../lib/permissions'

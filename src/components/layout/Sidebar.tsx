@@ -1,4 +1,3 @@
-import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import {
   Home,
@@ -8,11 +7,10 @@ import {
   BarChart3,
   Users,
   Calendar,
-  Settings,
   Megaphone
 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
-import { canCreateUsers, canUploadCurriculum, canReviewUploads, canUpdateCompetencies } from '../../lib/permissions'
+import { canCreateUsers } from '../../lib/permissions'
 
 interface NavItem {
   to: string

@@ -315,6 +315,6 @@ export function generateTemporaryPassword(): string {
 }
 
 // Placeholder - not implemented in client-side Supabase
-export async function resetPassword(userId: string, newPassword: string): Promise<{ error: any }> {
+export async function resetPassword(_userId: string, _newPassword: string): Promise<{ error: any }> {
   return { error: new Error('Password reset not available in client-side implementation') }
 }

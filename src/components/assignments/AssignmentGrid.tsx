@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, Filter, Clock, CheckCircle, AlertCircle } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { canReviewUploads } from '../../lib/permissions'

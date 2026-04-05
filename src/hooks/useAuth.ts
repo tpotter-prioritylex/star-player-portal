@@ -1,5 +1,4 @@
 import { useState, useEffect, createContext, useContext } from 'react'
-import type { User } from '@supabase/supabase-js'
 import type { User as AppUser } from '../types'
 import { supabase } from '../lib/supabase'
 

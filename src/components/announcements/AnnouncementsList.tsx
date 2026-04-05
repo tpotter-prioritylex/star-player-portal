@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, Edit, Trash2, Pin, PinOff, Megaphone, User, Calendar } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { canManageAnnouncements } from '../../lib/permissions'

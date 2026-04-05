@@ -1,5 +1,3 @@
-import React from 'react'
-
 interface StatusBadgeProps {
   status: 'submitted' | 'reviewed' | 'revision_needed' | 'approved' | 'not_started' | 'in_progress' | 'demonstrated' | 'verified' | 'completed'
   className?: string

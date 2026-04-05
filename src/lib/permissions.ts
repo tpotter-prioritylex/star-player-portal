@@ -46,7 +46,7 @@ export function canAccessGroupChat(user: User, groupId: number): boolean {
   return user.role === 'star_player' && user.group_id === groupId
 }
 
-export function canAccessCohortChat(user: User): boolean {
+export function canAccessCohortChat(_user: User): boolean {
   // All authenticated users can access cohort chat
   return true
 }

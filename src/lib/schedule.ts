@@ -1,5 +1,4 @@
 import { supabase } from './supabase'
-import type { TrainingDay } from '../types'
 
 export interface ScheduleSlot {
   id?: string

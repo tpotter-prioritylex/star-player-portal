@@ -1,4 +1,3 @@
-import React from 'react'
 import { Hash, Megaphone, Users, MessageCircle } from 'lucide-react'
 import type { ChatChannel } from '../../types'
 

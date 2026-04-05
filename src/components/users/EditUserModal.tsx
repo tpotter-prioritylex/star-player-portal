@@ -40,7 +40,7 @@ export function EditUserModal({ user, onClose, onUserUpdated }: EditUserModalPro
     setError(null)
 
     try {
-      const { data, error: updateError } = await updateUser(user.id, formData)
+      const { data: _data, error: updateError } = await updateUser(user.id, formData)
 
       if (updateError) {
         setError(updateError.message)

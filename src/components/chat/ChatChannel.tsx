@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { useChat } from '../../hooks/useChat'
 import { useAuth } from '../../hooks/useAuth'

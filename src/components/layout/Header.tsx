@@ -1,4 +1,3 @@
-import React from 'react'
 import { LogOut, Bell } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { getRoleDisplayName, getRoleColor } from '../../lib/permissions'

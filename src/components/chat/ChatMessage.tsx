@@ -1,4 +1,3 @@
-import React from 'react'
 import { Trash2 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { getRoleDisplayName, getRoleColor, canDeleteMessages } from '../../lib/permissions'

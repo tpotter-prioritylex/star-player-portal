@@ -63,7 +63,7 @@ export function UploadMaterialModal({ trainingDays, onClose, onSuccess }: Upload
     setError(null)
 
     try {
-      const { data, error: uploadError } = await uploadMaterial({
+      const { data: _data, error: uploadError } = await uploadMaterial({
         ...formData,
         file
       })

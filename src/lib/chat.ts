@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import type { ChatChannel, ChatMessage, User } from '../types'
+import type { ChatChannel, ChatMessage } from '../types'
 
 export interface SendMessageData {
   channel_id: number

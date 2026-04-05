@@ -42,7 +42,7 @@ export function UploadAssignmentModal({ trainingDays, selectedDay, onClose, onSu
     setError(null)
 
     try {
-      const { data, error: uploadError } = await uploadAssignment({
+      const { data: _data, error: uploadError } = await uploadAssignment({
         ...formData,
         file
       })

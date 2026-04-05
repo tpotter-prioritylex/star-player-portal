@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Download, Trash2, Calendar, User, Tag } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { canUploadCurriculum } from '../../lib/permissions'

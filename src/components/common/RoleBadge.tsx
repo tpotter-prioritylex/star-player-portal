@@ -1,4 +1,3 @@
-import React from 'react'
 import { getRoleDisplayName, getRoleColor } from '../../lib/permissions'
 import type { UserRole } from '../../types'
 

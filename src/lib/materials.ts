@@ -65,12 +65,11 @@ export async function uploadMaterial(materialData: UploadMaterialData): Promise<
     }
 
     // Generate file path
-    const fileExt = materialData.file.name.split('.').pop()
     const fileName = `${Date.now()}-${materialData.file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`
     const filePath = `day-${materialData.day_id}/${fileName}`
 
     // Upload file to storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const { data: _uploadData, error: uploadError } = await supabase.storage
       .from(STORAGE_BUCKETS.CURRICULUM_MATERIALS)
       .upload(filePath, materialData.file)
 

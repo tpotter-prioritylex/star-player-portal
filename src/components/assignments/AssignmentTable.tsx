@@ -1,5 +1,4 @@
-import React from 'react'
-import { Download, Eye, Calendar, User } from 'lucide-react'
+import { Download, Eye } from 'lucide-react'
 import { downloadAssignment, getAssignmentStatusColor, getAssignmentStatusLabel } from '../../lib/assignments'
 import type { StudentUpload } from '../../types'
 
@@ -9,7 +8,7 @@ interface AssignmentTableProps {
   onUpdate: () => void
 }
 
-export function AssignmentTable({ assignments, onReview, onUpdate }: AssignmentTableProps) {
+export function AssignmentTable({ assignments, onReview, onUpdate: _onUpdate }: AssignmentTableProps) {
   const handleDownload = async (assignment: StudentUpload, e: React.MouseEvent) => {
     e.stopPropagation()
     try {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Users, BookOpen, Upload, TrendingUp } from 'lucide-react'
 import { getDashboardStats } from '../../lib/dashboard'
 import { LoadingSpinner } from '../common/LoadingSpinner'

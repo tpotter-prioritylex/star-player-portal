@@ -1,4 +1,3 @@
-import React from 'react'
 import { BookOpen, MessageCircle, Upload, Calendar, TrendingUp } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { PIPELINE_CERTIFICATIONS } from '../../types'

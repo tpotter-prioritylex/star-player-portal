@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Award, Clock, CheckCircle, Play } from 'lucide-react'
 import { updatePipelineCertification, getCertificationStatusColor, getCertificationStatusLabel } from '../../lib/progress'
 import { PIPELINE_CERTIFICATIONS, CLIO_CREDENTIALS } from '../../types'

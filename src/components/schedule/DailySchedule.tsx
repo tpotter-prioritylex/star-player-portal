@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, Edit, Trash2, Clock, MapPin, Video, User, Calendar } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { canCreateUsers } from '../../lib/permissions' // Using this as admin check
