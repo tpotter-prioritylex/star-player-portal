@@ -128,49 +128,42 @@ export function StarPlayerDashboard() {
     return null
   }
 
-  // Determine program status based on training days
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  // Determine program status based on training days using string comparison to avoid timezone issues
+  const todayStr = new Date().toLocaleDateString('en-CA') // YYYY-MM-DD format
 
   const firstTrainingDay = data.trainingDays.find(day => day.date !== null)
   const lastTrainingDay = data.trainingDays.slice().reverse().find(day => day.date !== null)
-  const firstDay = firstTrainingDay?.date ? new Date(firstTrainingDay.date) : null
-  const lastDay = lastTrainingDay?.date ? new Date(lastTrainingDay.date) : null
 
   let programStatus: 'before' | 'active' | 'after' = 'before'
   let currentDay: TrainingDay | null = null
   let nextDay: TrainingDay | null = null
 
-  if (firstDay && lastDay) {
-    if (today < firstDay) {
+  if (firstTrainingDay?.date && lastTrainingDay?.date) {
+    if (todayStr < firstTrainingDay.date) {
       programStatus = 'before'
-    } else if (today > lastDay) {
+    } else if (todayStr > lastTrainingDay.date) {
       programStatus = 'after'
     } else {
       programStatus = 'active'
 
-      // Find current day or next day
-      currentDay = data.trainingDays.find(day => {
-        if (!day.date) return false
-        const dayDate = new Date(day.date)
-        dayDate.setHours(0, 0, 0, 0)
-        return dayDate.getTime() === today.getTime()
-      }) || null
+      // Find current day by string comparison
+      currentDay = data.trainingDays.find(day => day.date === todayStr) || null
 
       if (!currentDay) {
-        // Find next training day
+        // Find next training day by string comparison
         nextDay = data.trainingDays.find(day => {
           if (!day.date) return false
-          const dayDate = new Date(day.date)
-          dayDate.setHours(0, 0, 0, 0)
-          return dayDate > today
+          return day.date > todayStr
         }) || null
       }
     }
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    // Parse date string to avoid UTC offset issues
+    const [year, month, day] = dateString.split('-').map(Number)
+    const date = new Date(year, month - 1, day) // month is 0-indexed
+    return date.toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -192,7 +185,7 @@ export function StarPlayerDashboard() {
         </p>
 
         {/* Training Status */}
-        {programStatus === 'before' && firstDay && firstTrainingDay?.date && (
+        {programStatus === 'before' && firstTrainingDay?.date && (
           <div className="bg-gold/10 border border-gold/20 rounded-lg p-4">
             <div className="flex items-center mb-2">
               <Calendar className="h-5 w-5 text-gold mr-2" />
