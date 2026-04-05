@@ -3,6 +3,7 @@ import { Plus, Edit, Trash2, Pin, PinOff, Megaphone, User, Calendar } from 'luci
 import { useAuth } from '../../hooks/useAuth'
 import { canManageAnnouncements } from '../../lib/permissions'
 import { getAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement, toggleAnnouncementPin, formatAnnouncementDate } from '../../lib/announcements'
+import { sendAnnouncementEmail } from '../../lib/emails'
 import { CreateAnnouncementModal } from './CreateAnnouncementModal'
 import { LoadingSpinner } from '../common/LoadingSpinner'
 import type { Announcement } from '../../types'
@@ -91,6 +92,7 @@ export function AnnouncementsList() {
   const handleModalSave = async (announcementData: { title: string; content: string; pinned: boolean }) => {
     try {
       let error
+      const isCreating = !editingAnnouncement
 
       if (editingAnnouncement) {
         const result = await updateAnnouncement(editingAnnouncement.id, announcementData)
@@ -106,6 +108,24 @@ export function AnnouncementsList() {
         await loadAnnouncements()
         setShowCreateModal(false)
         setEditingAnnouncement(null)
+
+        // Send announcement email for new announcements only (not updates)
+        if (isCreating) {
+          sendAnnouncementEmail({
+            title: announcementData.title,
+            content: announcementData.content
+          }).then((emailResult) => {
+            if (emailResult.success) {
+              console.log('Announcement email sent successfully:', emailResult.message)
+              // Optionally show a success message to the user
+            } else {
+              console.error('Failed to send announcement email:', emailResult.error)
+              // Optionally show an error message to the user
+            }
+          }).catch((err) => {
+            console.error('Unexpected error sending announcement email:', err)
+          })
+        }
       }
     } catch (err) {
       alert('Failed to save announcement')

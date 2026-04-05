@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { X, Upload, Download, AlertCircle, CheckCircle } from 'lucide-react'
+import { X, Upload, Download, AlertCircle, CheckCircle, Mail } from 'lucide-react'
 import { createUser, generateTemporaryPassword } from '../../lib/users'
+import { sendWelcomeEmail } from '../../lib/emails'
 import { WelcomeEmailCopy } from './WelcomeEmailCopy'
 import type { UserRole } from '../../types'
 
@@ -22,6 +23,8 @@ interface ImportResult {
   full_name: string
   password?: string
   error?: string
+  emailStatus?: 'sending' | 'sent' | 'failed'
+  emailError?: string
 }
 
 export function BulkImportModal({ onClose, onUsersCreated }: BulkImportModalProps) {
@@ -121,7 +124,8 @@ admin@example.com,Admin User,admin,`
             success: true,
             email: row.email,
             full_name: row.full_name,
-            password
+            password,
+            emailStatus: 'sending'
           })
         }
       }
@@ -130,6 +134,28 @@ admin@example.com,Admin User,admin,`
 
       if (importResults.some(r => r.success)) {
         onUsersCreated()
+      }
+
+      // Send welcome emails to successfully created users
+      const successfulUsers = importResults.filter(r => r.success)
+      for (const user of successfulUsers) {
+        if (user.password) {
+          sendWelcomeEmail({
+            email: user.email,
+            full_name: user.full_name,
+            temporary_password: user.password
+          }).then((emailResult) => {
+            setResults(prevResults =>
+              prevResults ? prevResults.map(result =>
+                result.email === user.email ? {
+                  ...result,
+                  emailStatus: emailResult.success ? 'sent' : 'failed',
+                  emailError: emailResult.error
+                } : result
+              ) : null
+            )
+          })
+        }
       }
 
     } catch (err: any) {
@@ -264,13 +290,38 @@ ${results.map(r => r.success
                   <div className="space-y-3">
                     {successfulUsers.map((user, idx) => (
                       <div key={idx} className="bg-green-50 border border-green-200 rounded-lg p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
                             <h5 className="font-medium text-green-900">{user.full_name}</h5>
                             <p className="text-sm text-green-700">{user.email}</p>
-                            <p className="text-xs text-green-600 font-mono">Password: {user.password}</p>
+                            <p className="text-xs text-green-600 font-mono mb-2">Password: {user.password}</p>
+
+                            {/* Email Status */}
+                            {user.emailStatus === 'sending' && (
+                              <div className="flex items-center text-xs text-blue-600">
+                                <Mail className="h-3 w-3 mr-1 animate-pulse" />
+                                Sending credentials...
+                              </div>
+                            )}
+                            {user.emailStatus === 'sent' && (
+                              <div className="flex items-center text-xs text-green-600">
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Credentials sent
+                              </div>
+                            )}
+                            {user.emailStatus === 'failed' && (
+                              <div className="text-xs text-red-600">
+                                <div className="flex items-center">
+                                  <AlertCircle className="h-3 w-3 mr-1" />
+                                  Failed to send email
+                                </div>
+                                {user.emailError && (
+                                  <p className="text-xs text-red-500 mt-1">{user.emailError}</p>
+                                )}
+                              </div>
+                            )}
                           </div>
-                          <div>
+                          <div className="ml-4">
                             <WelcomeEmailCopy
                               user={{
                                 email: user.email,

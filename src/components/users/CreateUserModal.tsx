@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { X, CheckCircle } from 'lucide-react'
+import { X, CheckCircle, Mail, AlertCircle } from 'lucide-react'
 import { createUser, generateTemporaryPassword } from '../../lib/users'
 import { getAllGroups } from '../../lib/groups'
+import { sendWelcomeEmail } from '../../lib/emails'
 import { WelcomeEmailCopy } from './WelcomeEmailCopy'
 import type { UserRole, Group } from '../../types'
 
@@ -25,6 +26,8 @@ export function CreateUserModal({ onClose, onUserCreated }: CreateUserModalProps
     email: string
     full_name: string
     password: string
+    emailStatus: 'sending' | 'sent' | 'failed' | null
+    emailError?: string
   } | null>(null)
 
   useEffect(() => {
@@ -83,19 +86,34 @@ export function CreateUserModal({ onClose, onUserCreated }: CreateUserModalProps
         return
       }
 
-      // STEP 6: If both succeed, show success view with welcome email copy
+      // STEP 6: If both succeed, show success view and send welcome email
       if (data) {
         console.log('✅ User creation successful:', data.id)
 
-        // Set created user to show success view
-        setCreatedUser({
+        // Set created user to show success view with email sending status
+        const userWithEmailStatus = {
           email: data.email,
           full_name: data.full_name,
-          password: formData.temporary_password
-        })
+          password: formData.temporary_password,
+          emailStatus: 'sending' as const
+        }
+        setCreatedUser(userWithEmailStatus)
 
         // Refresh user list in background
         onUserCreated()
+
+        // Send welcome email asynchronously
+        sendWelcomeEmail({
+          email: data.email,
+          full_name: data.full_name,
+          temporary_password: formData.temporary_password
+        }).then((emailResult) => {
+          setCreatedUser(prev => prev ? {
+            ...prev,
+            emailStatus: emailResult.success ? 'sent' : 'failed',
+            emailError: emailResult.error
+          } : null)
+        })
       } else {
         setError('User creation completed but no user data returned')
       }
@@ -156,6 +174,33 @@ export function CreateUserModal({ onClose, onUserCreated }: CreateUserModalProps
                 <p className="font-mono text-sm bg-white border border-gray-300 rounded px-3 py-2">
                   {createdUser.password}
                 </p>
+              </div>
+
+              {/* Email Status */}
+              <div className="mb-4">
+                {createdUser.emailStatus === 'sending' && (
+                  <div className="flex items-center justify-center text-sm text-blue-600">
+                    <Mail className="h-4 w-4 mr-2 animate-pulse" />
+                    Sending credentials to {createdUser.email}...
+                  </div>
+                )}
+                {createdUser.emailStatus === 'sent' && (
+                  <div className="flex items-center justify-center text-sm text-green-600">
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Credentials sent to {createdUser.email}
+                  </div>
+                )}
+                {createdUser.emailStatus === 'failed' && (
+                  <div className="text-center">
+                    <div className="flex items-center justify-center text-sm text-red-600 mb-2">
+                      <AlertCircle className="h-4 w-4 mr-2" />
+                      Failed to send email to {createdUser.email}
+                    </div>
+                    {createdUser.emailError && (
+                      <p className="text-xs text-red-500">{createdUser.emailError}</p>
+                    )}
+                  </div>
+                )}
               </div>
 
               <WelcomeEmailCopy user={createdUser} className="w-full justify-center mb-4" />
