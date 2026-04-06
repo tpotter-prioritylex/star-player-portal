@@ -314,7 +314,51 @@ export function generateTemporaryPassword(): string {
   return password
 }
 
-// Placeholder - not implemented in client-side Supabase
-export async function resetPassword(_userId: string, _newPassword: string): Promise<{ error: any }> {
-  return { error: new Error('Password reset not available in client-side implementation') }
+export async function resetPassword(userId: string, newPassword: string): Promise<{ error: any }> {
+  try {
+    console.log('🔄 Resetting password for user:', userId)
+
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('❌ Missing Supabase configuration')
+      return { error: new Error('Supabase configuration is missing') }
+    }
+
+    const response = await fetch(`${supabaseUrl}/functions/v1/admin-reset-password`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${supabaseAnonKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        new_password: newPassword
+      })
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('❌ Password reset failed:', response.status, errorText)
+
+      let errorMessage = 'Password reset failed'
+      try {
+        const errorData = JSON.parse(errorText)
+        errorMessage = errorData.error || errorMessage
+      } catch {
+        // If parsing fails, use the raw text or generic message
+        errorMessage = errorText || errorMessage
+      }
+
+      return { error: new Error(errorMessage) }
+    }
+
+    console.log('✅ Password reset successfully')
+    return { error: null }
+
+  } catch (exception: any) {
+    console.error('💥 resetPassword exception:', exception)
+    return { error: new Error(`Password reset failed: ${exception.message}`) }
+  }
 }
