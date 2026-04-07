@@ -189,10 +189,22 @@ export async function deleteAssignment(assignmentId: string): Promise<{ error: a
 
 export async function downloadAssignment(assignment: StudentUpload): Promise<void> {
   try {
-    const response = await fetch(assignment.file_url)
-    if (!response.ok) throw new Error('Download failed')
+    // Extract storage path from file_url (everything after '/object/public/student-uploads/')
+    const urlParts = assignment.file_url.split('/object/public/student-uploads/')
+    if (urlParts.length !== 2) {
+      throw new Error('Invalid file URL format')
+    }
+    const storagePath = urlParts[1]
 
-    const blob = await response.blob()
+    // Download from private storage bucket
+    const { data: blob, error } = await supabase.storage
+      .from(STORAGE_BUCKETS.STUDENT_UPLOADS)
+      .download(storagePath)
+
+    if (error) {
+      throw error
+    }
+
     const url = window.URL.createObjectURL(blob)
 
     const link = document.createElement('a')
